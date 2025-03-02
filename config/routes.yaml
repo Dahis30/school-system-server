@@ -10,3 +10,7 @@ api_login_check:
 Formation:
   resource: App\Controller\FormationController
   prefix: /api
+
+DemandeInscription:
+  resource: App\Controller\DemandeInscriptionController
+  prefix: /api
