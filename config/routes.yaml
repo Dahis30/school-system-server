@@ -3,3 +3,14 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+api_login_check:
+  path: /api/login_check
+
+Formation:
+  resource: App\Controller\FormationController
+  prefix: /api
+
+DemandeInscription:
+  resource: App\Controller\DemandeInscriptionController
+  prefix: /api
