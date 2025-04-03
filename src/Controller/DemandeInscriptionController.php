@@ -35,7 +35,7 @@ final class DemandeInscriptionController extends AbstractController
             $demande->setNumeroTelephone($data['numeroTelephone']);
             $demande->setMotDePass($data['motDePass']);
             $this->entityManager->persist($demande);
-            $this->entityManager->flush();
+            // $this->entityManager->flush(); 
             return new JsonResponse(['message' => 'Demande d’inscription bien créée '], 201);
         }
         catch(Exception $e){
