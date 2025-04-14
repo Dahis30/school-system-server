@@ -22,13 +22,6 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $email = null;
 
     /**
-     * @var list<string> The user roles
-     */
-    #[ORM\Column]
-    #[Groups(["user-information"])]
-    private array $roles = [];
-
-    /**
      * @var string The hashed password
      */
     #[ORM\Column]
@@ -45,6 +38,10 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(["user-information"])]
     private ?string $numeroTelephone = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Role $role = null;
 
     public function getId(): ?int
     {
@@ -72,29 +69,7 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return (string) $this->email;
     }
-
-    /**
-     * @see UserInterface
-     * @return list<string>
-     */
-    public function getRoles(): array
-    {
-        $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
-
-        return array_unique($roles);
-    }
-
-    /**
-     * @param list<string> $roles
-     */
-    public function setRoles(array $roles): static
-    {
-        $this->roles = $roles;
-
-        return $this;
-    }
+    
 
     /**
      * @see PasswordAuthenticatedUserInterface
@@ -152,6 +127,22 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     public function setNumeroTelephone(?string $numeroTelephone): static
     {
         $this->numeroTelephone = $numeroTelephone;
+
+        return $this;
+    }
+
+    #[Groups(["user-information"])]
+    public function getRoles(): array 
+    {
+        $roles = [] ;
+        $this->role ? $roles [] = $this->role?->getTitre() : null ;
+
+        return $roles ;
+    }
+
+    public function setRoles(?Role $role): static
+    {
+        $this->role = $role;
 
         return $this;
     }
