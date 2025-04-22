@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\DemandeInscriptionRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: DemandeInscriptionRepository::class)]
 class DemandeInscription
@@ -11,22 +12,35 @@ class DemandeInscription
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['demandesInscription'])] 
     private ?int $id = null;
 
+    #[Groups(['demandesInscription'])]  
     #[ORM\Column(length: 255)] 
     private ?string $nom = null;
 
+    #[Groups(['demandesInscription'])]  
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $prenom = null;
 
+    #[Groups(['demandesInscription'])]  
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $email = null;
 
+    #[Groups(['demandesInscription'])]  
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $motDePass = null;
 
+
+    #[Groups(['demandesInscription'])]  
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $numeroTelephone = null;
+
+    #[ORM\OneToOne(mappedBy: 'demandeInscription')]
+    private ?Users $users = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $validated = null;
 
     public function getId(): ?int
     {
@@ -89,6 +103,40 @@ class DemandeInscription
     public function setNumeroTelephone(?string $numeroTelephone): static
     {
         $this->numeroTelephone = $numeroTelephone;
+
+        return $this;
+    }
+
+    public function getUsers(): ?Users
+    {
+        return $this->users;
+    }
+
+    public function setUsers(?Users $users): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($users === null && $this->users !== null) {
+            $this->users->setDemandeInscription(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($users !== null && $users->getDemandeInscription() !== $this) {
+            $users->setDemandeInscription($this);
+        }
+
+        $this->users = $users;
+
+        return $this;
+    }
+
+    public function isValidated(): ?bool
+    {
+        return $this->validated;
+    }
+
+    public function setValidated(?bool $validated): static
+    {
+        $this->validated = $validated;
 
         return $this;
     }
