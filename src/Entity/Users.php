@@ -15,6 +15,7 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(["user-information"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
@@ -42,6 +43,9 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: true)]
     private ?Role $role = null;
+
+    #[ORM\OneToOne(inversedBy: 'users')]
+    private ?DemandeInscription $demandeInscription = null;
 
     public function getId(): ?int
     {
@@ -143,6 +147,18 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     public function setRoles(?Role $role): static
     {
         $this->role = $role;
+
+        return $this;
+    }
+
+    public function getDemandeInscription(): ?DemandeInscription
+    {
+        return $this->demandeInscription;
+    }
+
+    public function setDemandeInscription(?DemandeInscription $demandeInscription): static
+    {
+        $this->demandeInscription = $demandeInscription;
 
         return $this;
     }
