@@ -42,6 +42,10 @@ class DemandeInscription
     #[ORM\Column(nullable: true)]
     private ?bool $validated = null;
 
+    #[Groups(['demandesInscription'])]  
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $sexe = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -137,6 +141,18 @@ class DemandeInscription
     public function setValidated(?bool $validated): static
     {
         $this->validated = $validated;
+
+        return $this;
+    }
+
+    public function getSexe(): ?string
+    {
+        return $this->sexe;
+    }
+
+    public function setSexe(?string $sexe): static
+    {
+        $this->sexe = $sexe;
 
         return $this;
     }
