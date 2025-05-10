@@ -44,6 +44,11 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\JoinColumn(nullable: true)]
     private ?Role $role = null;
 
+    
+    #[Groups(["user-information"])]
+    #[ORM\Column(length: 255 , nullable: true)]
+    private ?string $sexe = null;
+    
     #[ORM\OneToOne(inversedBy: 'users')]
     private ?DemandeInscription $demandeInscription = null;
 
@@ -159,6 +164,18 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     public function setDemandeInscription(?DemandeInscription $demandeInscription): static
     {
         $this->demandeInscription = $demandeInscription;
+
+        return $this;
+    }
+
+    public function getSexe(): ?string
+    {
+        return $this->sexe;
+    }
+
+    public function setSexe(string $sexe): static
+    {
+        $this->sexe = $sexe;
 
         return $this;
     }

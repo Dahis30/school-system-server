@@ -43,6 +43,7 @@ class DemandeInscriptionService {
         $demande->setEmail($data['email']);
         $demande->setNumeroTelephone($data['numeroTelephone']);
         $demande->setMotDePass($data['motDePass']);
+        $demande->setSexe($data['sexe']);
         $this->entityManager->persist($demande);
         $this->entityManager->flush(); 
         return true ;
@@ -63,6 +64,7 @@ class DemandeInscriptionService {
             $user->setDemandeInscription($demandeObject);
             $user->setNom($demandeObject->getNom());
             $user->setPrenom($demandeObject->getPrenom());
+            $user->setSexe($demandeObject->getSexe());
             $user->setNumeroTelephone($demandeObject->getNumeroTelephone());
             $user->setEmail($demandeObject->getEmail());
             $user->setPassword($this->passwordEncoder->hashPassword($user, $demandeObject->getMotDePass()));
