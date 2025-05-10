@@ -18,3 +18,11 @@ Formation:
 DemandeInscription:
   resource: App\Controller\DemandeInscriptionController
   prefix: /api
+
+CentresDeFormation:
+  resource: App\Controller\CentresDeFormationController
+  prefix: /api
+
+Formateurs:
+  resource: App\Controller\FormateursController
+  prefix: /api
