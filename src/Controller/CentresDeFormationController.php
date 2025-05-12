@@ -46,4 +46,18 @@ final class CentresDeFormationController extends AbstractController
             return new JsonResponse(['error' => $e->getMessage()], 500);
         }
     }
+
+
+    #[Route('/centres-de-formation/{id}', name: 'app_centres_de_formation_delete' , methods: ['DELETE'])]
+    public function deleteCentreDeFormation($id): JsonResponse
+    {
+        try{
+            $utilisateur = $this->getUser();
+            $isCentreDeleted = $this->centresDeFormationService->deleteCentreDeFormation($id , $utilisateur ) ;       
+            if(!$isCentreDeleted){ return new JsonResponse(['error' => 'Une erreur est survenue.'],  JsonResponse::HTTP_BAD_REQUEST ); }
+            return new JsonResponse(['message' => "Centre de formation bien supprimer "], 201);
+        }catch(Exception $e){
+            return new JsonResponse(['error' => $e->getMessage()], 500);
+        }
+    }
 }
