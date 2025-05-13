@@ -45,6 +45,23 @@ class CentresDeFormationService {
     }
 
 
+    public function updateCentreDeFormation ($data ,$utilisateur){
+      
+        try{
+            $centre = $this->centresRepository->find((int) $data['id'] ) ;
+            if(!$centre) return false ;
+            $centre->setNom( $data['nom'] );
+            $centre->setAdresse( $data['adresse'] );
+            $centre->setUpdatedAt( new DateTimeImmutable );
+            $this->entityManager->persist($centre);
+            $this->entityManager->flush();
+            return true ;
+        }catch(Exception $e){
+            return false ;
+        }
+    }
+
+
     public function deleteCentreDeFormation ($id ,$utilisateur){
         try{
             $centre = $this->centresRepository->find((int) $id ) ;
@@ -56,7 +73,6 @@ class CentresDeFormationService {
             return true ;
         }catch(Exception $e){
             return false ;
-
         }
       
     }

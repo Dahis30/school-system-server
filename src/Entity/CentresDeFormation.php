@@ -78,9 +78,11 @@ class CentresDeFormation
         return $this;
     }
 
-    public function getUpdatedAt(): ?\DateTimeImmutable
+    public function getUpdatedAt( $requiredDateTime = false ): \DateTimeImmutable | string
     {
-        return $this->updatedAt;
+        if($requiredDateTime) return $this->updatedAt;
+
+         return $this->createdAt->format('Y-m-d');
     }
 
     public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
