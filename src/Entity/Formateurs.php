@@ -2,8 +2,9 @@
 
 namespace App\Entity;
 
-use App\Repository\FormateursRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\FormateursRepository;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: FormateursRepository::class)]
 class Formateurs
@@ -11,28 +12,46 @@ class Formateurs
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['formateurs'])]  
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['formateurs'])] 
     private ?string $nom = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['formateurs'])] 
     private ?string $prenom = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['formateurs'])] 
     private ?string $numeroTelephone = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['formateurs'])] 
     private ?string $email = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['formateurs'])] 
     private ?string $adresse = null;
 
+    #[Groups(['formateurs'])]  
+    #[ORM\Column(length: 255 , nullable: true)]
+    private ?string $sexe = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?CentresDeFormation $CentreDeFormation = null;
+
+
     #[ORM\Column]
+    #[Groups(['formateurs'])]  
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['formateurs'])]  
     private ?\DateTimeImmutable $updatedAt = null;
+
 
     public function getId(): ?int
     {
@@ -99,9 +118,34 @@ class Formateurs
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getSexe(): ?string
     {
-        return $this->createdAt;
+        return $this->sexe;
+    }
+
+    public function setSexe(string $sexe): static
+    {
+        $this->sexe = $sexe;
+
+        return $this;
+    }
+    
+    public function getCentreDeFormation(): ?CentresDeFormation
+    {
+        return $this->CentreDeFormation;
+    }
+
+    public function setCentreDeFormation(?CentresDeFormation $CentreDeFormation): static
+    {
+        $this->CentreDeFormation = $CentreDeFormation;
+
+        return $this;
+    }
+
+    public function getCreatedAt($requiredDateTime = false ): \DateTimeImmutable | string
+    {
+        if($requiredDateTime) return $this->createdAt ;
+        return $this->createdAt->format('Y-m-d');
     }
 
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
@@ -111,8 +155,10 @@ class Formateurs
         return $this;
     }
 
-    public function getUpdatedAt(): ?\DateTimeImmutable
+    public function getUpdatedAt($requiredDateTime = false): \DateTimeImmutable | string | null
     {
+        if($requiredDateTime) return $this->updatedAt;
+        if(!$requiredDateTime && !empty($this->updatedAt) )return $this->updatedAt->format('Y-m-d'); 
         return $this->updatedAt;
     }
 
@@ -122,4 +168,5 @@ class Formateurs
 
         return $this;
     }
+
 }

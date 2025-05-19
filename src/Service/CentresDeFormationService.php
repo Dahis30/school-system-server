@@ -11,8 +11,7 @@ use App\Repository\CentresDeFormationRepository;
 class CentresDeFormationService {
     public function __construct(EntityManagerInterface $entityManager , CentresDeFormationRepository $centresRepository){
         $this->entityManager = $entityManager ;
-        $this->centresRepository = $centresRepository ;
-        
+        $this->centresRepository = $centresRepository ;  
     }
     
 
@@ -22,7 +21,6 @@ class CentresDeFormationService {
             return $centresData ;
         }catch(Exception $e){
             return false ;
-
         }
     }
 
@@ -39,7 +37,6 @@ class CentresDeFormationService {
             return true ;
         }catch(Exception $e){
             return false ;
-
         }
       
     }
