@@ -80,8 +80,8 @@ class FormateursService {
 
         public function deleteFormateur ($id){
             try{
-                $centre = $this->formateursRepository->find((int) $id ) ;
-                $this->entityManager->remove($centre);
+                $formateur = $this->formateursRepository->find((int) $id ) ;
+                $this->entityManager->remove($formateur);
                 $this->entityManager->flush();
                 return true ;
             }catch(Exception $e){

@@ -12,6 +12,7 @@ class Formation
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['formation'])]  
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
@@ -22,13 +23,20 @@ class Formation
     #[Groups(['formation'])]  
     private ?string $description = null;
 
-    #[ORM\Column(nullable: true)]
-    #[Groups(['formation'])]  
-    private ?int $nombreDesMois = null;
-
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Users $utilisateur = null;
+    private ?CentresDeFormation $CentreDeFormation = null;
+
+    #[ORM\Column]
+    #[Groups(['formation'])]
+    private ?\DateTimeImmutable $createdAt = null;
+
+    
+    #[ORM\Column(nullable: true)]
+    #[Groups(['formation'])]  
+    private ?\DateTimeImmutable $updatedAt = null;
+
+
 
     public function getId(): ?int
     {
@@ -59,26 +67,42 @@ class Formation
         return $this;
     }
 
-    public function getNombreDesMois(): ?int
+    public function getCentreDeFormation(): ?CentresDeFormation
     {
-        return $this->nombreDesMois;
+        return $this->CentreDeFormation;
     }
 
-    public function setNombreDesMois(?int $nombreDesMois): static
+    public function setCentreDeFormation(?CentresDeFormation $CentreDeFormation): static
     {
-        $this->nombreDesMois = $nombreDesMois;
+        $this->CentreDeFormation = $CentreDeFormation;
 
         return $this;
     }
 
-    public function getUtilisateur(): ?Users
+    public function getCreatedAt($requiredDateTime = false ): \DateTimeImmutable | string
     {
-        return $this->utilisateur;
+        if($requiredDateTime) return $this->createdAt ;
+        return $this->createdAt->format('Y-m-d');
     }
 
-    public function setUtilisateur(?Users $utilisateur): static
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
-        $this->utilisateur = $utilisateur;
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    
+    public function getUpdatedAt($requiredDateTime = false): \DateTimeImmutable | string | null
+    {
+        if($requiredDateTime) return $this->updatedAt;
+        if(!$requiredDateTime && !empty($this->updatedAt) )return $this->updatedAt->format('Y-m-d'); 
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
 
         return $this;
     }
