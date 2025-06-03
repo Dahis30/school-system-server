@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\FormationRepository;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -16,11 +18,11 @@ class Formation
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['formation'])]  
+    #[Groups(['formation' , 'relationFormationFormateur'])]  
     private ?string $titre = null;
 
     #[ORM\Column(length: 400, nullable: true)]
-    #[Groups(['formation'])]  
+    #[Groups(['formation' , 'relationFormationFormateur'])]  
     private ?string $description = null;
 
     #[ORM\ManyToOne]
@@ -35,6 +37,17 @@ class Formation
     #[ORM\Column(nullable: true)]
     #[Groups(['formation'])]  
     private ?\DateTimeImmutable $updatedAt = null;
+
+    /**
+     * @var Collection<int, FormateursFormation>
+     */
+    #[ORM\OneToMany(targetEntity: FormateursFormation::class, mappedBy: 'Formation', orphanRemoval: true)]
+    private Collection $formateursFormations;
+
+    public function __construct()
+    {
+        $this->formateursFormations = new ArrayCollection();
+    }
 
 
 
@@ -103,6 +116,36 @@ class Formation
     public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, FormateursFormation>
+     */
+    public function getFormateursFormations(): Collection
+    {
+        return $this->formateursFormations;
+    }
+
+    public function addFormateursFormation(FormateursFormation $formateursFormation): static
+    {
+        if (!$this->formateursFormations->contains($formateursFormation)) {
+            $this->formateursFormations->add($formateursFormation);
+            $formateursFormation->setFormation($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFormateursFormation(FormateursFormation $formateursFormation): static
+    {
+        if ($this->formateursFormations->removeElement($formateursFormation)) {
+            // set the owning side to null (unless already changed)
+            if ($formateursFormation->getFormation() === $this) {
+                $formateursFormation->setFormation(null);
+            }
+        }
 
         return $this;
     }

@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\FormateursRepository;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -51,6 +53,17 @@ class Formateurs
     #[ORM\Column(nullable: true)]
     #[Groups(['formateurs'])]  
     private ?\DateTimeImmutable $updatedAt = null;
+
+    /**
+     * @var Collection<int, FormateursFormation>
+     */
+    #[ORM\OneToMany(targetEntity: FormateursFormation::class, mappedBy: 'Formateurs', orphanRemoval: true)]
+    private Collection $formateursFormations;
+
+    public function __construct()
+    {
+        $this->formateursFormations = new ArrayCollection();
+    }
 
 
     public function getId(): ?int
@@ -165,6 +178,36 @@ class Formateurs
     public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, FormateursFormation>
+     */
+    public function getFormateursFormations(): Collection
+    {
+        return $this->formateursFormations;
+    }
+
+    public function addFormateursFormation(FormateursFormation $formateursFormation): static
+    {
+        if (!$this->formateursFormations->contains($formateursFormation)) {
+            $this->formateursFormations->add($formateursFormation);
+            $formateursFormation->setFormateurs($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFormateursFormation(FormateursFormation $formateursFormation): static
+    {
+        if ($this->formateursFormations->removeElement($formateursFormation)) {
+            // set the owning side to null (unless already changed)
+            if ($formateursFormation->getFormateurs() === $this) {
+                $formateursFormation->setFormateurs(null);
+            }
+        }
 
         return $this;
     }
