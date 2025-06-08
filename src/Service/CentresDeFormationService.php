@@ -11,8 +11,7 @@ use App\Repository\CentresDeFormationRepository;
 class CentresDeFormationService {
     public function __construct(EntityManagerInterface $entityManager , CentresDeFormationRepository $centresRepository){
         $this->entityManager = $entityManager ;
-        $this->centresRepository = $centresRepository ;
-        
+        $this->centresRepository = $centresRepository ;  
     }
     
 
@@ -22,7 +21,6 @@ class CentresDeFormationService {
             return $centresData ;
         }catch(Exception $e){
             return false ;
-
         }
     }
 
@@ -39,9 +37,42 @@ class CentresDeFormationService {
             return true ;
         }catch(Exception $e){
             return false ;
-
         }
       
     }
+
+
+    public function updateCentreDeFormation ($data ,$utilisateur){
+      
+        try{
+            $centre = $this->centresRepository->find((int) $data['id'] ) ;
+            if(!$centre) return false ;
+            $centre->setNom( $data['nom'] );
+            $centre->setAdresse( $data['adresse'] );
+            $centre->setUpdatedAt( new DateTimeImmutable );
+            $this->entityManager->persist($centre);
+            $this->entityManager->flush();
+            return true ;
+        }catch(Exception $e){
+            return false ;
+        }
+    }
+
+
+    public function deleteCentreDeFormation ($id ,$utilisateur){
+        try{
+            $centre = $this->centresRepository->find((int) $id ) ;
+            // Il faut s'assurer que l'utilisateur qui souhaite supprimer ce centre de formation est bien celui qui l'a créé.
+            if($centre->getUtilisateur() != $utilisateur ) return false ;
+            ////////////////////////////////////////////////////////////////////////////
+            $this->entityManager->remove($centre);
+            $this->entityManager->flush();
+            return true ;
+        }catch(Exception $e){
+            return false ;
+        }
+      
+    }
+
 
 }

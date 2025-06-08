@@ -26,3 +26,7 @@ CentresDeFormation:
 Formateurs:
   resource: App\Controller\FormateursController
   prefix: /api
+
+Etudiant:
+  resource: App\Controller\EtudiantController
+  prefix: /api
