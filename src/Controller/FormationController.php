@@ -68,7 +68,6 @@ class FormationController extends AbstractController
     public function updateFormation(Request $request): JsonResponse
     {
         try{
-            // dd('ok');
             $data = json_decode($request->getContent(), true);
             $isFormationUpdated = $this->formationService->updateFormation( $data  ) ;       
             if($isFormationUpdated !== true){ return new JsonResponse(['error' => $isFormationUpdated],  JsonResponse::HTTP_BAD_REQUEST ); }
