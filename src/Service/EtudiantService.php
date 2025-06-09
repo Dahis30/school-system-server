@@ -6,14 +6,16 @@ use DateTimeImmutable;
 use App\Entity\Etudiant;
 use App\Repository\EtudiantRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Security\Core\Security;
 use App\Repository\CentresDeFormationRepository;
 
 class EtudiantService {
 
-    public function __construct(EtudiantRepository $etudiantRepository, CentresDeFormationRepository $centresRepository , EntityManagerInterface $entityManager ){
+    public function __construct(EtudiantRepository $etudiantRepository, CentresDeFormationRepository $centresRepository , EntityManagerInterface $entityManager , Security $security, ){
         $this->etudiantRepository = $etudiantRepository ;
         $this->centresRepository = $centresRepository ;  
         $this->entityManager = $entityManager ;
+        $this->security = $security ;
     }
 
     public function getEtudiants($centreId){
@@ -58,6 +60,8 @@ class EtudiantService {
         try{
             $etudiantObject = $this->etudiantRepository->find((int) $data['id']);
             if(!$etudiantObject) return "etudiant n'existe pas" ;
+            // Ici on va implémenter le voter des étudiants pour gérer les autorisations
+            if(!$this->security->isGranted('ETUDIANT_EDIT', $etudiantObject) ) return "Vous n'avez pas les autorisations nécessaires pour effectuer cette opération."  ;
             if(empty($data['nomComplet'])) return "Nom complet obligatoire" ;
             $etudiantObject->setNomComplet((string) $data['nomComplet']);
             $etudiantObject->setNumeroTelephone((string) $data['numeroTelephone']);
@@ -81,6 +85,8 @@ class EtudiantService {
         try{
             $etudiantObject = $this->etudiantRepository->find((int) $id ) ;
             if(!$etudiantObject) return false ;
+            // Ici on va implémenter le voter des étudiants pour gérer les autorisations
+            if(!$this->security->isGranted('ETUDIANT_DELETE', $etudiantObject) ) return false  ;
             $this->entityManager->remove($etudiantObject);
             $this->entityManager->flush();
             return true ;
