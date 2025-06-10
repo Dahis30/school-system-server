@@ -22,6 +22,9 @@ class EtudiantService {
         try{
             $centreDeFormation = $this->centresRepository->find((int) $centreId);
             if(!$centreDeFormation) return false ;
+            // Ici on va implémenter le voter des étudiants pour gérer les autorisations
+            if(!$this->security->isGranted('ETUDIANT_GET' , $centreDeFormation ) ) return false  ;
+            ///////////////////////////////////////
             $etudiants = $this->etudiantRepository->findBy(['CentreDeFormation'=>$centreDeFormation]);
             return  $etudiants ;
         }catch(Exception $e){
@@ -33,6 +36,9 @@ class EtudiantService {
         try{
             $centreDeFormation = $this->centresRepository->find((int) ($centreId));
             if(!$centreDeFormation) return "centre n'existe pas" ;
+            // Ici on va implémenter le voter des étudiants pour gérer les autorisations
+            if(!$this->security->isGranted('ETUDIANT_CREATE' , $centreDeFormation ) ) return "Vous n'avez pas les autorisations nécessaires pour effectuer cette opération."   ;
+            //////////////////////////////////
             $etudiantObject = new Etudiant ;
             $etudiantObject->setCentreDeFormation( $centreDeFormation ) ;
             if(empty($data['nomComplet'])) return "Nom complet obligatoire" ;
@@ -53,8 +59,6 @@ class EtudiantService {
         }
       
     }
-
-    
                 
     public function updateEtudiant ( $data ){
         try{
@@ -62,6 +66,7 @@ class EtudiantService {
             if(!$etudiantObject) return "etudiant n'existe pas" ;
             // Ici on va implémenter le voter des étudiants pour gérer les autorisations
             if(!$this->security->isGranted('ETUDIANT_EDIT', $etudiantObject) ) return "Vous n'avez pas les autorisations nécessaires pour effectuer cette opération."  ;
+            ///////////////////////////////////////////////////////////////////
             if(empty($data['nomComplet'])) return "Nom complet obligatoire" ;
             $etudiantObject->setNomComplet((string) $data['nomComplet']);
             $etudiantObject->setNumeroTelephone((string) $data['numeroTelephone']);
@@ -87,6 +92,7 @@ class EtudiantService {
             if(!$etudiantObject) return false ;
             // Ici on va implémenter le voter des étudiants pour gérer les autorisations
             if(!$this->security->isGranted('ETUDIANT_DELETE', $etudiantObject) ) return false  ;
+           ////////////////////////////////////////////////////////////////////////
             $this->entityManager->remove($etudiantObject);
             $this->entityManager->flush();
             return true ;

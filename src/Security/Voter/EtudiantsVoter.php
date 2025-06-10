@@ -4,6 +4,7 @@
 namespace App\Security\Voter ;
 
 use App\Entity\Etudiant;
+use App\Entity\CentresDeFormation;
 use Symfony\Component\Security\Core\Security;
 use App\Security\VoterServices\EtudiantsVoterService;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -12,6 +13,8 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class EtudiantsVoter extends Voter {
 
+    const GET = 'ETUDIANT_GET' ;
+    const CREATE = 'ETUDIANT_CREATE';
     const EDIT = 'ETUDIANT_EDIT' ;
     const DELETE = 'ETUDIANT_DELETE' ;
 
@@ -22,15 +25,13 @@ class EtudiantsVoter extends Voter {
         $this->etudiantsVoterService = $etudiantsVoterService ;
     }
 
-    protected function supports ( string $attribute , $etudiant) : bool {
-        if(!in_array($attribute , [self::EDIT , self::DELETE]) ) return false ;
-
-        if( !($etudiant instanceof Etudiant)) return false ;
+    protected function supports ( string $attribute , $object ) : bool {
+        if(!in_array($attribute , [self::EDIT , self::DELETE , self::GET , self::CREATE]) ) return false ;
+        if( !($object instanceof Etudiant) && !($object instanceof CentresDeFormation)) return false ;
         return true ;
-
     }
 
-    protected function voteOnAttribute (string $attribute , $etudiant , TokenInterface $token) : bool {
+    protected function voteOnAttribute (string $attribute , $object , TokenInterface $token) : bool {
 
         // premierement on vas recuperer l'utilisateur connecte depuis le token
         $user = $token->getUser() ;
@@ -42,11 +43,17 @@ class EtudiantsVoter extends Voter {
         switch ($attribute){
             case self::EDIT :
                 // on vas verifier si l'utilisateur peut modifier un etudiant
-                return $this->etudiantsVoterService->canEditEtudiant($user,$etudiant) ;
+                return $this->etudiantsVoterService->canEditEtudiant($user,$object) ;
                 break ;
             case self::DELETE :
                 // on vas verifier si l'utilisateur peut supprimer un etudiant
-                return $this->etudiantsVoterService->canDeleteEtudiant($user,$etudiant);
+                return $this->etudiantsVoterService->canDeleteEtudiant($user,$object);
+                break ;
+            case self::GET:
+                return $this->etudiantsVoterService->canGetEtudiants($user,$object ) ;
+                break ;
+            case self::CREATE:
+                return $this->etudiantsVoterService->canCreateEtudiant($user,$object ) ;
                 break ;
         }
     }
