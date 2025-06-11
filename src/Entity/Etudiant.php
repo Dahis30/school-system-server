@@ -55,8 +55,7 @@ class Etudiant
     #[ORM\JoinColumn(nullable: false)]
     private ?CentresDeFormation $CentreDeFormation = null;
 
-    #[ORM\Column]
-    #[Groups(['etudiants'])]  
+    #[ORM\Column] 
     private ?bool $statut = null;
 
     public function getId(): ?int
