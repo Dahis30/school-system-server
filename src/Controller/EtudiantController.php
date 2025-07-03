@@ -33,7 +33,7 @@ final class EtudiantController extends AbstractController
     }
     
     /*
-        Cette fonction createFormation() permet de créer un etudiant dans la table 'etudiant' et de l'associer à un centre de formation spécifique.
+        Cette fonction createEtudiant() permet de créer un etudiant dans la table 'etudiant' et de l'associer à un centre de formation spécifique.
     */
     #[Route('/etudiants/{centreId}', name: 'app_etudiant_create' , methods: ['POST'])]
     public function createEtudiant($centreId ,Request $request): JsonResponse

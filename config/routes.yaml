@@ -30,3 +30,7 @@ Formateurs:
 Etudiant:
   resource: App\Controller\EtudiantController
   prefix: /api
+
+Abonnement:
+  resource: App\Controller\AbonnementController
+  prefix: /api
