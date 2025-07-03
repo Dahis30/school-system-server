@@ -21,20 +21,26 @@ class Abonnement
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['abonnements'])]  
     private ?Etudiant $Etudiant = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['abonnements'])]  
     private ?Formateurs $Formateur = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Formation $Formation = null;
+    #[Groups(['abonnements'])]  
+    private ?Formation $Formation = null;    
+
 
     #[ORM\Column]
+    #[Groups(['abonnements'])]  
     private ?\DateTimeImmutable $DateDebut = null;
 
     #[ORM\Column]
+    #[Groups(['abonnements'])]  
     private ?\DateTimeImmutable $DateFin = null;
 
     #[ORM\Column]
@@ -46,13 +52,20 @@ class Abonnement
     private ?float $MontantFormateur = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['abonnements'])]  
     private ?string $Statut = null;
 
     #[ORM\Column]
+    #[Groups(['abonnements'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['abonnements'])]
     private ?\DateTimeImmutable $updatedAt = null;
+
+    #[ORM\Column(length: 600, nullable: true)]
+    #[Groups(['abonnements'])]  
+    private ?string $Commentaire = null;
 
     public function getId(): ?int
     {
@@ -107,9 +120,10 @@ class Abonnement
         return $this;
     }
 
-    public function getDateDebut(): ?\DateTimeImmutable
+    public function getDateDebut($requiredDateTime = false): \DateTimeImmutable | string
     {
-        return $this->DateDebut;
+        if($requiredDateTime) return $this->DateDebut ;
+        return $this->DateDebut->format('Y-m-d');
     }
 
     public function setDateDebut(\DateTimeImmutable $DateDebut): static
@@ -119,9 +133,10 @@ class Abonnement
         return $this;
     }
 
-    public function getDateFin(): ?\DateTimeImmutable
+    public function getDateFin($requiredDateTime = false): \DateTimeImmutable | string
     {
-        return $this->DateFin;
+        if($requiredDateTime) return $this->DateFin ;
+        return $this->DateFin->format('Y-m-d');
     }
 
     public function setDateFin(\DateTimeImmutable $DateFin): static
@@ -167,9 +182,10 @@ class Abonnement
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt($requiredDateTime = false): \DateTimeImmutable | string
     {
-        return $this->createdAt;
+        if($requiredDateTime) return $this->createdAt ;
+        return $this->createdAt->format('Y-m-d');
     }
 
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
@@ -179,14 +195,28 @@ class Abonnement
         return $this;
     }
 
-    public function getUpdatedAt(): ?\DateTimeImmutable
+    public function getUpdatedAt($requiredDateTime = false): \DateTimeImmutable | string | null
     {
+        if($requiredDateTime) return $this->updatedAt;
+        if(!$requiredDateTime && !empty($this->updatedAt) )return $this->updatedAt->format('Y-m-d'); 
         return $this->updatedAt;
     }
 
     public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getCommentaire(): ?string
+    {
+        return $this->Commentaire;
+    }
+
+    public function setCommentaire(?string $Commentaire): static
+    {
+        $this->Commentaire = $Commentaire;
 
         return $this;
     }

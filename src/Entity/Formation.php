@@ -14,11 +14,11 @@ class Formation
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['formation'])]  
+    #[Groups(['formation' , 'abonnements'])]  
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['formation' , 'relationFormationFormateur'])]  
+    #[Groups(['formation' , 'relationFormationFormateur','abonnements'])]  
     private ?string $titre = null;
 
     #[ORM\Column(length: 400, nullable: true)]

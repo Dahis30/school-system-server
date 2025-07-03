@@ -12,15 +12,15 @@ class Etudiant
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['etudiants'])]  
+    #[Groups(['etudiants' , 'abonnements'])]  
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['etudiants'])]  
+    #[Groups(['etudiants' , 'abonnements'])]  
     private ?string $nomComplet = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['etudiants'])]  
+    #[Groups(['etudiants' ,'abonnements'])]  
     private ?string $numeroTelephone = null;
 
     #[ORM\Column(length: 255, nullable: true)]
