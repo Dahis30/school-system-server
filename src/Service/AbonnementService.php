@@ -197,16 +197,12 @@ class AbonnementService{
         try{
             $abonnementObject = $this->abonnementRepo->find((int) $id ) ;
             if(!$abonnementObject) return false ;
-            // Ici on va implémenter le voter des étudiants pour gérer les autorisations
-            // if(!$this->security->isGranted('ETUDIANT_DELETE', $abonnementObject) ) return false  ;
-           ////////////////////////////////////////////////////////////////////////
             $this->entityManager->remove($abonnementObject);
             $this->entityManager->flush();
             return true ;
         }catch(Exception $e){
             return false ;
         }
-      
     }
 
 

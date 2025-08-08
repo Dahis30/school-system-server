@@ -34,3 +34,7 @@ Etudiant:
 Abonnement:
   resource: App\Controller\AbonnementController
   prefix: /api
+
+Paiement:
+  resource: App\Controller\PaiementController
+  prefix: /api

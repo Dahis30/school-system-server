@@ -12,7 +12,7 @@ class Abonnement
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['abonnements'])]  
+    #[Groups(['abonnements' , 'paiements'])]  
     private ?int $id = null;
 
     #[ORM\ManyToOne]
@@ -44,7 +44,7 @@ class Abonnement
     private ?\DateTimeImmutable $DateFin = null;
 
     #[ORM\Column]
-    #[Groups(['abonnements'])]
+    #[Groups(['abonnements' , 'paiements'])]
     private ?float $MontantAbonnement = null;
 
     #[ORM\Column]
@@ -66,6 +66,10 @@ class Abonnement
     #[ORM\Column(length: 600, nullable: true)]
     #[Groups(['abonnements'])]  
     private ?string $Commentaire = null;
+
+    #[ORM\Column(nullable: true)]
+    #[Groups(['abonnements' , 'paiements'])]  
+    private ?float $MontantPayee = null;
 
     public function getId(): ?int
     {
@@ -217,6 +221,18 @@ class Abonnement
     public function setCommentaire(?string $Commentaire): static
     {
         $this->Commentaire = $Commentaire;
+
+        return $this;
+    }
+
+    public function getMontantPayee(): ?float
+    {
+        return $this->MontantPayee;
+    }
+
+    public function setMontantPayee(?float $MontantPayee): static
+    {
+        $this->MontantPayee = $MontantPayee;
 
         return $this;
     }
