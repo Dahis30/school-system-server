@@ -38,3 +38,7 @@ Abonnement:
 Paiement:
   resource: App\Controller\PaiementController
   prefix: /api
+
+PackDeFormations:
+  resource: App\Controller\PackDeFormationsController
+  prefix: /api

@@ -43,7 +43,6 @@ class AbonnementService{
             return $abonemments ;
         }catch(Exception $eroor){
             return false ;
-
         }
     }
 
