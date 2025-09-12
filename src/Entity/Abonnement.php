@@ -21,33 +21,32 @@ class Abonnement
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['abonnements'])]  
+    #[Groups(['abonnements' , 'abonnementsDePack'])]  
     private ?Etudiant $Etudiant = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     #[Groups(['abonnements'])]  
     private ?Formateurs $Formateur = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     #[Groups(['abonnements'])]  
     private ?Formation $Formation = null;    
 
-
     #[ORM\Column]
-    #[Groups(['abonnements'])]  
+    #[Groups(['abonnements' , 'abonnementsDePack'])]  
     private ?\DateTimeImmutable $DateDebut = null;
 
     #[ORM\Column]
-    #[Groups(['abonnements'])]  
+    #[Groups(['abonnements' , 'abonnementsDePack'])]  
     private ?\DateTimeImmutable $DateFin = null;
 
     #[ORM\Column]
-    #[Groups(['abonnements' , 'paiements'])]
+    #[Groups(['abonnements' , 'paiements' , 'abonnementsDePack' ])]
     private ?float $MontantAbonnement = null;
 
-    #[ORM\Column]
+    #[ORM\Column (nullable: true) ]
     #[Groups(['abonnements'])]
     private ?float $MontantFormateur = null;
 
@@ -56,24 +55,31 @@ class Abonnement
     private ?string $Statut = null;
 
     #[ORM\Column]
-    #[Groups(['abonnements'])]
+    #[Groups(['abonnements' , 'abonnementsDePack'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['abonnements'])]
+    #[Groups(['abonnements' , 'abonnementsDePack' ])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\Column(length: 600, nullable: true)]
-    #[Groups(['abonnements'])]  
+    #[Groups(['abonnements' , 'abonnementsDePack'])]  
     private ?string $Commentaire = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['abonnements' , 'paiements'])]  
+    #[Groups(['abonnements' , 'paiements' , 'abonnementsDePack'])]  
     private ?float $MontantPayee = null;
 
+    #[ORM\ManyToOne]
+    #[Groups(['abonnementsDePack'])]  
+    private ?PackFormation $pack = null;
+
+    #[ORM\Column(nullable: false)]
+    private ?bool $relatedToPack = null;
+
     public function getId(): ?int
-    {
-        return $this->id;
+    { 
+        return $this->id; 
     }
 
     public function getEtudiant(): ?Etudiant
@@ -233,6 +239,30 @@ class Abonnement
     public function setMontantPayee(?float $MontantPayee): static
     {
         $this->MontantPayee = $MontantPayee;
+
+        return $this;
+    }
+
+    public function getPack(): ?PackFormation
+    {
+        return $this->pack;
+    }
+
+    public function setPack(?PackFormation $pack): static
+    {
+        $this->pack = $pack;
+
+        return $this;
+    }
+
+    public function isRelatedToPack(): ?bool
+    {
+        return $this->relatedToPack;
+    }
+
+    public function setRelatedToPack(?bool $relatedToPack): static
+    {
+        $this->relatedToPack = $relatedToPack;
 
         return $this;
     }

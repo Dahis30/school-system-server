@@ -12,11 +12,11 @@ class PackFormation
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['packsDeFormations'])]
+    #[Groups(['packsDeFormations' , 'contenusDePack' , 'abonnementsDePack'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['packsDeFormations'])]
+    #[Groups(['packsDeFormations' , 'contenusDePack' , 'abonnementsDePack'])]
     private ?string $titre = null;
 
     #[ORM\Column(length: 255, nullable: true)]

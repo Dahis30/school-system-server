@@ -2,34 +2,44 @@
 
 namespace App\Entity;
 
-use App\Repository\PackFormationElementsRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\ContenuPackFormationRepository;
+use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ORM\Entity(repositoryClass: PackFormationElementsRepository::class)]
-class PackFormationElements
+#[ORM\Entity(repositoryClass: ContenuPackFormationRepository::class)]
+class ContenuPackFormation
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['contenusDePack'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['contenusDePack'])]
     private ?PackFormation $PackFormation = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['contenusDePack'])]
     private ?Formation $Formation = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['contenusDePack'])]
     private ?Formateurs $Formateur = null;
 
     #[ORM\Column]
-    private ?float $montant = null;
+    private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
+    #[Groups(['contenusDePack'])]
+    private ?float $pourcentageDeFormateur = null;
+
+    #[ORM\Column]
+    #[Groups(['contenusDePack'])]
+    private ?float $montantDeFormateur = null;
 
     public function getId(): ?int
     {
@@ -72,18 +82,6 @@ class PackFormationElements
         return $this;
     }
 
-    public function getMontant(): ?float
-    {
-        return $this->montant;
-    }
-
-    public function setMontant(float $montant): static
-    {
-        $this->montant = $montant;
-
-        return $this;
-    }
-
     public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
@@ -92,6 +90,30 @@ class PackFormationElements
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getPourcentageDeFormateur(): ?float
+    {
+        return $this->pourcentageDeFormateur;
+    }
+
+    public function setPourcentageDeFormateur(float $pourcentageDeFormateur): static
+    {
+        $this->pourcentageDeFormateur = $pourcentageDeFormateur;
+
+        return $this;
+    }
+
+    public function getMontantDeFormateur(): ?float
+    {
+        return $this->montantDeFormateur;
+    }
+
+    public function setMontantDeFormateur(float $montantDeFormateur): static
+    {
+        $this->montantDeFormateur = $montantDeFormateur;
 
         return $this;
     }

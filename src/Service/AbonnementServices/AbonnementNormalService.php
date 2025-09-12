@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service ;
+namespace App\Service\AbonnementServices ;
 
 use Exception;
 use DateTimeImmutable;
@@ -14,7 +14,7 @@ use App\Service\DateServices\DateService;
 use App\Repository\CentresDeFormationRepository;
 
 
-class AbonnementService{
+class AbonnementNormalService{
 
     public function __construct(
         AbonnementRepository $abonnementRepo ,
@@ -39,7 +39,7 @@ class AbonnementService{
         try{
             $centreDeFormation = $this->centresRepository->find((int) $centreId);
             if(!$centreDeFormation) return false ;
-            $abonemments = $this->abonnementRepo->findBy(['CentresDeFormation'=>$centreDeFormation]);
+            $abonemments = $this->abonnementRepo->findBy(['CentresDeFormation'=>$centreDeFormation , 'relatedToPack' =>false]);
             return $abonemments ;
         }catch(Exception $eroor){
             return false ;
@@ -49,7 +49,7 @@ class AbonnementService{
 
 
     
-    public function createAbonnement ($centreId , $data ){
+    public function createAbonnementNormal ($centreId , $data ){
         try{
             $centreDeFormation = $this->centresRepository->find((int) ($centreId));
             if(!$centreDeFormation) return "centre n'existe pas" ;
@@ -98,6 +98,7 @@ class AbonnementService{
             $abonnementObject->setStatut( (string) $data['Statut']  ) ;
 
             $abonnementObject->setCreatedAt( new DateTimeImmutable ) ;
+            $abonnementObject->setRelatedToPack( false ) ;
             
             $this->entityManager->persist($abonnementObject);
             $this->entityManager->flush();
@@ -113,10 +114,13 @@ class AbonnementService{
 
 
                
-    public function updateAbonnement ( $data ){
+    public function updateAbonnementNormal ( $data ){
         try{
             $abonnementObject = $this->abonnementRepo->find((int) $data['id']);
             if(!$abonnementObject) return "abonnement n'existe pas" ;
+
+          
+            if($abonnementObject->isRelatedToPack()) return "ce abonnement est d'un pack de formation" ;
 
             if(empty($data['Formateur'])) return "Formateur est obligatoire" ;
             if(empty($data['Etudiant'])) return "Etudiant est obligatoire" ;
@@ -196,6 +200,7 @@ class AbonnementService{
         try{
             $abonnementObject = $this->abonnementRepo->find((int) $id ) ;
             if(!$abonnementObject) return false ;
+            if(  $abonnementObject->isRelatedToPack() ) return false ;
             $this->entityManager->remove($abonnementObject);
             $this->entityManager->flush();
             return true ;
