@@ -12,7 +12,7 @@ class Abonnement
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['abonnements' , 'paiements'])]  
+    #[Groups(['abonnements' , 'paiements' , 'abonnementsDePack'])]  
     private ?int $id = null;
 
     #[ORM\ManyToOne]
@@ -51,7 +51,7 @@ class Abonnement
     private ?float $MontantFormateur = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['abonnements'])]  
+    #[Groups(['abonnements' , 'abonnementsDePack'])]  
     private ?string $Statut = null;
 
     #[ORM\Column]

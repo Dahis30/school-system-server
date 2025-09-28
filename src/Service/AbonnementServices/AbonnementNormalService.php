@@ -119,9 +119,14 @@ class AbonnementNormalService{
             $abonnementObject = $this->abonnementRepo->find((int) $data['id']);
             if(!$abonnementObject) return "abonnement n'existe pas" ;
 
-          
+            // Cette fonction a été créée seulement pour modifier les abonnements normal , alors si l'abonnement est associé à un pack, on va retourner un message d'erreur .
             if($abonnementObject->isRelatedToPack()) return "ce abonnement est d'un pack de formation" ;
-
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            
+            // Si l'abonnement est déjà payé, alors on ne peut pas le modifier.
+            if($abonnementObject->getMontantPayee()) return "L'abonnement est déjà payé, vous ne pouvez donc pas le modifier." ;
+            //////////////////////////////////////////////////////////////////
+            
             if(empty($data['Formateur'])) return "Formateur est obligatoire" ;
             if(empty($data['Etudiant'])) return "Etudiant est obligatoire" ;
             if(empty($data['Formation'])) return "Formation est obligatoire" ;
@@ -199,13 +204,18 @@ class AbonnementNormalService{
     public function deleteAbonnement ($id){
         try{
             $abonnementObject = $this->abonnementRepo->find((int) $id ) ;
-            if(!$abonnementObject) return false ;
-            if(  $abonnementObject->isRelatedToPack() ) return false ;
+            if(!$abonnementObject) return "L'abonnement n'existe plus" ;
+                        
+            // Si l'abonnement est déjà payé, alors on ne peut pas le supprimer.
+            if($abonnementObject->getMontantPayee()) return "L'abonnement est déjà payé, vous ne pouvez donc pas le supprimer." ;
+            //////////////////////////////////////////////////////////////////
+            
             $this->entityManager->remove($abonnementObject);
             $this->entityManager->flush();
+
             return true ;
         }catch(Exception $e){
-            return false ;
+            return "'Une erreur est survenue.'" ;
         }
     }
 

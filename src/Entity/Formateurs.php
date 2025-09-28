@@ -14,15 +14,15 @@ class Formateurs
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['formateurs' , 'abonnements' , 'contenusDePack'])]  
+    #[Groups(['formateurs' , 'abonnements' , 'contenusDePack' , 'contenu_abonnement'])]  
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['formateurs' , 'abonnements' , 'contenusDePack'])] 
+    #[Groups(['formateurs' , 'abonnements' , 'contenusDePack' , 'contenu_abonnement'])] 
     private ?string $nom = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['formateurs' , 'abonnements' , 'contenusDePack'])] 
+    #[Groups(['formateurs' , 'abonnements' , 'contenusDePack' , 'contenu_abonnement'])] 
     private ?string $prenom = null;
 
     #[ORM\Column(length: 255, nullable: true)]

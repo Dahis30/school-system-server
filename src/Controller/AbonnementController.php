@@ -75,10 +75,6 @@ final class AbonnementController extends AbstractController
             return new JsonResponse(['error' => "Une erreur est survenue."], 500);
         }
     }
-
-
-
-    
     
     /*
         Cette fonction deleteAbonnement() permet de supprimer un abonnement depuis la table 'abonnement' .
@@ -88,15 +84,12 @@ final class AbonnementController extends AbstractController
     {
         try{
             $isAbonnementDeleted = $this->abonnementNormalService->deleteAbonnement($id) ;       
-            if(!$isAbonnementDeleted){ return new JsonResponse(['error' => 'Une erreur est survenue.'],  JsonResponse::HTTP_BAD_REQUEST ); }
+            if($isAbonnementDeleted !== true){ return new JsonResponse(['error' => $isAbonnementDeleted ],  JsonResponse::HTTP_BAD_REQUEST ); }
             return new JsonResponse(['message' => "abonnement bien supprimer "], 201);
         }catch(Exception $e){
             return new JsonResponse(['error' => $e->getMessage()], 500);
         }
     }
-    
-
-
 
         
     #[Route('/abonnement/pack/{centreId}', name: 'app_abonnement_get_pack' , methods : ['GET'] )]
@@ -107,6 +100,22 @@ final class AbonnementController extends AbstractController
             if($abonnements === false)  return new JsonResponse(['error' => 'Une erreur est survenue.'],  JsonResponse::HTTP_BAD_REQUEST );
             $json = json_decode($this->serializer->serialize($abonnements, 'json', ['groups' => 'abonnementsDePack'])) ;
             $result = ['abonnements' => $json ];
+            return new JsonResponse($result, Response::HTTP_OK, []);
+        }catch(Exception $e){
+            return new JsonResponse(['error' => 'Une erreur est survenue.'], 500);
+        }
+    }
+
+
+
+    #[Route('/abonnement/contenu/{abonnementId}', name: 'app_abonnement_get_contenu' , methods : ['GET'] )]
+    public function getConteuAbonnement($abonnementId): Response
+    {
+        try{
+            $contenus = $this->abonnementPackService->getConteuAbonnement($abonnementId);
+            if($contenus === false)  return new JsonResponse(['error' => 'Une erreur est survenue.'],  JsonResponse::HTTP_BAD_REQUEST );
+            $json = json_decode($this->serializer->serialize($contenus, 'json', ['groups' => 'contenu_abonnement'])) ;
+            $result = ['contenuAbonnement' => $json ];
             return new JsonResponse($result, Response::HTTP_OK, []);
         }catch(Exception $e){
             return new JsonResponse(['error' => 'Une erreur est survenue.'], 500);
@@ -128,6 +137,24 @@ final class AbonnementController extends AbstractController
         }catch(Exception $e){
             return new JsonResponse(['error' => 'Une erreur est survenue.'], 500);
             // return new JsonResponse(['error' => $e->getMessage()], 500);
+        }
+    }
+
+
+    
+    /*
+        Cette fonction updateAbonnementNormal() permet de modifier un abonnement dans la table 'abonnement' .
+    */
+    #[Route('/abonnement/pack', name: 'app_abonnement_update' , methods: ['PUT'])]
+    public function updateAbonnementDePack(Request $request): JsonResponse
+    {
+        try{
+            $data = json_decode($request->getContent(), true);
+            $isAbonnementUpdated = $this->abonnementPackService->updateAbonnementDePack( $data  ) ;       
+            if($isAbonnementUpdated !== true){ return new JsonResponse(['error' => $isAbonnementUpdated],  JsonResponse::HTTP_BAD_REQUEST ); }
+            return new JsonResponse(['message' => "Abonnement bien modifier "], 201);
+        }catch(Exception $e){
+            return new JsonResponse(['error' => "Une erreur est survenue."], 500);
         }
     }
 

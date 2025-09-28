@@ -22,12 +22,12 @@ class ContenuPackFormation
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['contenusDePack'])]
+    #[Groups(['contenusDePack' , 'contenu_abonnement'])]
     private ?Formation $Formation = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['contenusDePack'])]
+    #[Groups(['contenusDePack' , 'contenu_abonnement'])]
     private ?Formateurs $Formateur = null;
 
     #[ORM\Column]

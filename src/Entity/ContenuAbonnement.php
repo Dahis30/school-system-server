@@ -2,8 +2,9 @@
 
 namespace App\Entity;
 
-use App\Repository\ContenuAbonnementRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\ContenuAbonnementRepository;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ContenuAbonnementRepository::class)]
 class ContenuAbonnement
@@ -11,22 +12,24 @@ class ContenuAbonnement
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups('contenu_abonnement')]  
     private ?int $id = null;
 
-
-
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false , onDelete: 'CASCADE')]
     private ?Abonnement $Abonnement = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups('contenu_abonnement')]  
     private ?ContenuPackFormation $Contenu = null;
 
     #[ORM\Column]
+    #[Groups('contenu_abonnement')]  
     private ?float $pourcentageDeFormateur = null;
 
     #[ORM\Column]
+    #[Groups('contenu_abonnement')]  
     private ?float $montantDeFormateur = null;
 
     #[ORM\Column]
