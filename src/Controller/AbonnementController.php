@@ -145,7 +145,7 @@ final class AbonnementController extends AbstractController
     /*
         Cette fonction updateAbonnementNormal() permet de modifier un abonnement dans la table 'abonnement' .
     */
-    #[Route('/abonnement/pack', name: 'app_abonnement_update' , methods: ['PUT'])]
+    #[Route('/abonnement/pack', name: 'app_abonnement_pack_update' , methods: ['PUT'])]
     public function updateAbonnementDePack(Request $request): JsonResponse
     {
         try{

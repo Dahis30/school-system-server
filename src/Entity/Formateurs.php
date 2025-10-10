@@ -59,10 +59,16 @@ class Formateurs
      */
     #[ORM\OneToMany(targetEntity: FormateursFormation::class, mappedBy: 'Formateurs', orphanRemoval: true)]
     private Collection $formateursFormations;
+    /**
+     * @var Collection<int, IndemnitesDeFormateures>
+     */
+    #[ORM\OneToMany(targetEntity: IndemnitesDeFormateures::class, mappedBy: 'Formateur')]
+    private Collection $indemnitesDeFormateures;
 
     public function __construct()
     {
         $this->formateursFormations = new ArrayCollection();
+        $this->indemnitesDeFormateures = new ArrayCollection();
     }
 
 
@@ -206,6 +212,37 @@ class Formateurs
             // set the owning side to null (unless already changed)
             if ($formateursFormation->getFormateurs() === $this) {
                 $formateursFormation->setFormateurs(null);
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * @return Collection<int, IndemnitesDeFormateures>
+     */
+    public function getIndemnitesDeFormateures(): Collection
+    {
+        return $this->indemnitesDeFormateures;
+    }
+
+    public function addIndemnitesDeFormateure(IndemnitesDeFormateures $indemnitesDeFormateure): static
+    {
+        if (!$this->indemnitesDeFormateures->contains($indemnitesDeFormateure)) {
+            $this->indemnitesDeFormateures->add($indemnitesDeFormateure);
+            $indemnitesDeFormateure->setFormateur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeIndemnitesDeFormateure(IndemnitesDeFormateures $indemnitesDeFormateure): static
+    {
+        if ($this->indemnitesDeFormateures->removeElement($indemnitesDeFormateure)) {
+            // set the owning side to null (unless already changed)
+            if ($indemnitesDeFormateure->getFormateur() === $this) {
+                $indemnitesDeFormateure->setFormateur(null);
             }
         }
 

@@ -12,6 +12,9 @@ use App\Repository\FormateursRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Service\DateServices\DateService;
 use App\Repository\CentresDeFormationRepository;
+use App\Service\IndemnitesDeFormateuresServices\CreateIndemnitesService;
+use App\Service\IndemnitesDeFormateuresServices\ObtenirIndemnitesService;
+use App\Service\IndemnitesDeFormateuresServices\SupprimerIdemnitesService;
 
 
 class AbonnementNormalService{
@@ -24,6 +27,9 @@ class AbonnementNormalService{
         EtudiantRepository $etudiantRepo ,
         FormationRepository $formationRepo ,
         DateService $dateService ,
+        CreateIndemnitesService $createIndemnitesService,
+        ObtenirIndemnitesService $obtenirIndemnitesDeFormateuresService,
+        SupprimerIdemnitesService $supprimerIdemnitesDeFormateursService ,
         ){
         $this->abonnementRepo = $abonnementRepo ;
         $this->entityManager = $entityManager ;
@@ -32,7 +38,9 @@ class AbonnementNormalService{
         $this->etudiantRepo = $etudiantRepo ;
         $this->formationRepo = $formationRepo ;
         $this->dateService = $dateService ;
-
+        $this->createIndemnitesService = $createIndemnitesService ;
+        $this->obtenirIndemnitesDeFormateuresService = $obtenirIndemnitesDeFormateuresService ;
+        $this->supprimerIdemnitesDeFormateursService = $supprimerIdemnitesDeFormateursService ;
     }
 
     public function getAbonnements($centreId){
@@ -99,7 +107,12 @@ class AbonnementNormalService{
 
             $abonnementObject->setCreatedAt( new DateTimeImmutable ) ;
             $abonnementObject->setRelatedToPack( false ) ;
-            
+
+            // Après la création de l'abonnement, il faut créer une indemnité pour le formateur
+            $isIndemniteeCreated = $this->createIndemnitesService->createIndemniteFromAbonnementNormal($abonnementObject) ;
+            // TODO : il faut cette  condition etre fonctionnelle
+            // if( $isIndemniteeCreated != true  ) return "une erreure est survenue l'ors la creation de l'indemnite" ;
+            ///////////////////////
             $this->entityManager->persist($abonnementObject);
             $this->entityManager->flush();
             return true ;
@@ -127,6 +140,15 @@ class AbonnementNormalService{
             if($abonnementObject->getMontantPayee()) return "L'abonnement est déjà payé, vous ne pouvez donc pas le modifier." ;
             //////////////////////////////////////////////////////////////////
             
+            // Avant de modifier un abonnement, il faut s'assurer que les indemnités des formateurs associées à cet abonnement ne sont pas encore payées
+            $indemnitesDeFormateures = $this->obtenirIndemnitesDeFormateuresService->obtenirIndemnitesParAbonnement($abonnementObject);
+            if( $indemnitesDeFormateures === false) return 'Une erreur est survenue.' ;
+            foreach ( $indemnitesDeFormateures as $indemnite){
+                if($indemnite->getMontantPayee()) return "Vous ne pouvez pas modifier cet abonnement car vous avez déjà payé un formateur en se basant sur cet abonnement" ;
+            }
+            ////////////////////////
+
+
             if(empty($data['Formateur'])) return "Formateur est obligatoire" ;
             if(empty($data['Etudiant'])) return "Etudiant est obligatoire" ;
             if(empty($data['Formation'])) return "Formation est obligatoire" ;
@@ -188,6 +210,14 @@ class AbonnementNormalService{
             $abonnementObject->setStatut( (string) $data['Statut']  ) ;
 
             $abonnementObject->setUpdatedAt(new DateTimeImmutable);
+
+            // Si tout se passe bien, on va supprimer toutes les indemnités de cet abonnement et les régénérer
+            $indemnitesDeleted = $this->supprimerIdemnitesDeFormateursService->SupprimerIdemnites($indemnitesDeFormateures);
+            /////////////////////////////////////////
+            // ici on vas regenerer une indemnité pour le formateur
+            $isIndemnitesCreated = $this->createIndemnitesService->createIndemniteFromAbonnementNormal($abonnementObject) ;
+            ///////////////////////////////////////////////////////
+           
 
             $this->entityManager->persist($abonnementObject);
             $this->entityManager->flush();

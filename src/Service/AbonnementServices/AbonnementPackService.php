@@ -15,6 +15,9 @@ use App\Repository\PackFormationRepository;
 use App\Repository\ContenuAbonnementRepository;
 use App\Repository\CentresDeFormationRepository;
 use App\Repository\ContenuPackFormationRepository;
+use App\Service\IndemnitesDeFormateuresServices\CreateIndemnitesService;
+use App\Service\IndemnitesDeFormateuresServices\ObtenirIndemnitesService;
+use App\Service\IndemnitesDeFormateuresServices\SupprimerIdemnitesService;
 
 class AbonnementPackService{
     public function __construct (
@@ -28,6 +31,9 @@ class AbonnementPackService{
         PackFormationRepository $packFormationRepo ,
         ContenuPackFormationRepository $contenuPackRepo ,
         ContenuAbonnementRepository $contenuAbonnementRepo ,
+        CreateIndemnitesService $createIndemnitesService ,
+        ObtenirIndemnitesService $obtenirIndemnitesDeFormateuresService,
+        SupprimerIdemnitesService $supprimerIdemnitesDeFormateursService ,
         ){
         $this->abonnementRepo = $abonnementRepo ;
         $this->entityManager = $entityManager ;
@@ -39,6 +45,9 @@ class AbonnementPackService{
         $this->packFormationRepo = $packFormationRepo ;
         $this->contenuPackRepo = $contenuPackRepo ;
         $this->contenuAbonnementRepo = $contenuAbonnementRepo ;
+        $this->createIndemnitesService = $createIndemnitesService ;
+        $this->obtenirIndemnitesDeFormateuresService = $obtenirIndemnitesDeFormateuresService ;
+        $this->supprimerIdemnitesDeFormateursService = $supprimerIdemnitesDeFormateursService ;
 
     }
 
@@ -115,6 +124,7 @@ class AbonnementPackService{
 
             $montantTotal = 0 ;
             $pourcentageTotal = 0 ;
+            $contenusAbonnement = [] ;
             if(empty( $data['contenu'] )) return "Vous ne pouvez pas créer un abonnement de pack sans contenu !" ;
             foreach($data['contenu'] as $contenu){
                 $contenuPack = $this->contenuPackRepo->find( (int) $contenu['id'] );
@@ -135,6 +145,10 @@ class AbonnementPackService{
                 $contenuAbonnement->setCreatedAt( new DateTimeImmutable ) ;
                 $this->entityManager->persist($contenuAbonnement);
 
+                // On va utiliser cette variable après pour créer les indemnités des formateurs depuis le contenu d'abonnement
+                $contenusAbonnement [] = $contenuAbonnement ;
+                ////////
+
             }
 
             // Le total des pourcentages des contenus de cet abonnement ne doit pas dépasser 100.
@@ -143,6 +157,13 @@ class AbonnementPackService{
             // Le total des montants des formateurs des contenus de cet abonnement ne doit pas dépasser le montant de l'abonnement.
             if($montantTotal >  $abonnementObject->getMontantAbonnement()  ) return "Le total des montants des formateurs des contenus de cet abonnement ne doit pas dépasser le montant de l'abonnement ! " ;
             /////////////////////////////////////////// 
+
+
+
+            // Après la création de l'abonnement, il faut créer les indemnités de les formateures
+            $isIndemniteeCreated = $this->createIndemnitesService->createIndemniteFromAbonnementDePack($abonnementObject , $contenusAbonnement) ;
+            if( $isIndemniteeCreated != true  ) return "une erreure est survenue l'ors la creation de l'indemnite" ;
+            ///////////////////////
 
             $this->entityManager->flush();
             return true ;
@@ -167,6 +188,15 @@ class AbonnementPackService{
             if($abonnementObject->getMontantPayee()) return "L'abonnement est déjà payé, vous ne pouvez donc pas le modifier." ;
             //////////////////////////////////////////////////////////////////
             
+            // Avant de modifier un abonnement, il faut s'assurer que les indemnités des formateurs associées à cet abonnement ne sont pas encore payées
+            $indemnitesDeFormateurs = $this->obtenirIndemnitesDeFormateuresService->obtenirIndemnitesParAbonnement($abonnementObject);
+            if( $indemnitesDeFormateurs === false) return 'Une erreur est survenue.' ;
+            foreach ( $indemnitesDeFormateurs as $indemnite){
+                if($indemnite->getMontantPayee()) return "Vous ne pouvez pas modifier cet abonnement car vous avez déjà payé un formateur en se basant sur cet abonnement" ;
+            }
+            ////////////////////////
+
+
             if(empty($data['Etudiant'])) return "Etudiant est obligatoire" ;
             if(empty($data['Pack'])) return "Pack de formation est obligatoire" ;
             if(empty($data['DateDebut'])) return "Date Debut est obligatoire" ;
@@ -234,6 +264,7 @@ class AbonnementPackService{
             }
             //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+            $contenusAbonnement = [] ;
             foreach($data['contenuAbonnement'] as $contenu){
 
                 $contenuAbonnement = $this->contenuAbonnementRepo->find((int) $contenu['id']) ; 
@@ -251,6 +282,10 @@ class AbonnementPackService{
                 $contenuAbonnement->setUpdatedAt( new DateTimeImmutable ) ;
                 $this->entityManager->persist($contenuAbonnement);
 
+                // On va utiliser cette variable après pour créer les indemnités des formateurs depuis le contenu d'abonnement
+                $contenusAbonnement [] =  $contenuAbonnement  ;
+                ////////////////////////////////////////////////////////////////////////////////////
+
             }
 
             // Le total des pourcentages des contenus de cet abonnement ne doit pas dépasser 100.
@@ -260,6 +295,15 @@ class AbonnementPackService{
             if($montantTotal >  $abonnementObject->getMontantAbonnement()  ) return "Le total des montants des formateurs des contenus de cet abonnement ne doit pas dépasser le montant de l'abonnement ! " ;
             /////////////////////////////////////////// 
 
+            
+            // Si tout se passe bien, on va supprimer toutes les indemnités de cet abonnement et les régénérer
+            $indemnitesDeleted = $this->supprimerIdemnitesDeFormateursService->SupprimerIdemnites($indemnitesDeFormateurs);
+            /////////////////////////////////////////
+            // ici on vas regenerer une indemnité pour les formateurs
+            $isIndemniteeCreated = $this->createIndemnitesService->createIndemniteFromAbonnementDePack($abonnementObject , $contenusAbonnement) ;
+            if( $isIndemniteeCreated != true  ) return "une erreure est survenue l'ors la creation de l'indemnite" ;
+            ///////////////////////////////////////////////////////
+           
             $this->entityManager->flush();
             return true ;
         }catch(Exception $e){
