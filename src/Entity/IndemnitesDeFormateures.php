@@ -18,7 +18,7 @@ class IndemnitesDeFormateures
     private ?Formateurs $Formateur = null;
 
     #[ORM\ManyToOne(inversedBy: 'indemnitesDeFormateures')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false , onDelete: 'CASCADE')]
     private ?Abonnement $Abonnement = null;
 
     #[ORM\ManyToOne]

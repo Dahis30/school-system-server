@@ -310,6 +310,34 @@ class AbonnementPackService{
             return 'Une erreur est survenue.' ;
         }
     }
+    
+    public function deleteAbonnementDePack ($id){
+        try{
+            $abonnementObject = $this->abonnementRepo->find((int) $id ) ;
+            if(!$abonnementObject) return "L'abonnement n'existe plus" ;
+                        
+            // Si l'abonnement est déjà payé, alors on ne peut pas le supprimer.
+            if($abonnementObject->getMontantPayee()) return "L'abonnement est déjà payé, vous ne pouvez donc pas le supprimer." ;
+            //////////////////////////////////////////////////////////////////
+ 
+            // Avant de supprimer un abonnement, il faut s'assurer que les indemnités des formateurs associées à cet abonnement ne sont pas encore payées
+            $indemnitesDeFormateures = $this->obtenirIndemnitesDeFormateuresService->obtenirIndemnitesParAbonnement($abonnementObject);
+            if( $indemnitesDeFormateures === false) return 'Une erreur est survenue.' ;
+            foreach ( $indemnitesDeFormateures as $indemnite){
+                if($indemnite->getMontantPayee()) return "Vous ne pouvez pas supprimer cet abonnement car vous avez déjà payé un formateur en se basant sur cet abonnement" ;
+            }
+            // Si tout est OK, l'abonnement sera supprimé et les indemnités des formateurs seront supprimées automatiquement, 
+            // car dans l'entité "IndemnitesDeFormateurs" nous avons utilisé <<onDelete: 'CASCADE'>>
+            ////////////////////////
+
+            $this->entityManager->remove($abonnementObject);
+            $this->entityManager->flush();
+
+            return true ;
+        }catch(Exception $e){
+            return "'Une erreur est survenue.'" ;
+        }
+    }
 
 
 }

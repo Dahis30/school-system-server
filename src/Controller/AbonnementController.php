@@ -159,6 +159,23 @@ final class AbonnementController extends AbstractController
     }
 
 
+        
+    /*
+        Cette fonction deleteAbonnementDePack() permet de supprimer un abonnement qui sont associes a un pack de formation depuis la table 'abonnement' .
+    */
+    #[Route('/abonnement/pack/{id}', name: 'app_abonnement_pack_delete' , methods: ['DELETE'])]
+    public function deleteAbonnementDePack($id): JsonResponse
+    {
+        try{
+            $isAbonnementDeleted = $this->abonnementPackService->deleteAbonnementDePack($id) ;       
+            if($isAbonnementDeleted !== true){ return new JsonResponse(['error' => $isAbonnementDeleted ],  JsonResponse::HTTP_BAD_REQUEST ); }
+            return new JsonResponse(['message' => "abonnement bien supprimer "], 201);
+        }catch(Exception $e){
+            return new JsonResponse(['error' => $e->getMessage()], 500);
+        }
+    }
+
+
 
 
 
