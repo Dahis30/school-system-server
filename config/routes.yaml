@@ -42,3 +42,7 @@ Paiement:
 PackDeFormations:
   resource: App\Controller\PackDeFormationsController
   prefix: /api
+
+IndemnitesDeFormateures:
+  resource: App\Controller\IndemnitesDeFormateuresController
+  prefix: /api

@@ -2,8 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\IndemnitesDeFormateuresRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use App\Repository\IndemnitesDeFormateuresRepository;
 
 #[ORM\Entity(repositoryClass: IndemnitesDeFormateuresRepository::class)]
 class IndemnitesDeFormateures
@@ -11,10 +14,12 @@ class IndemnitesDeFormateures
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['indemnites-formateures' ])]  
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'indemnitesDeFormateures')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['indemnites-formateures' ])]
     private ?Formateurs $Formateur = null;
 
     #[ORM\ManyToOne(inversedBy: 'indemnitesDeFormateures')]
@@ -32,10 +37,23 @@ class IndemnitesDeFormateures
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\Column]
+    #[Groups(['indemnites-formateures' ])]  
     private ?float $montantDeFormateur = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['indemnites-formateures' ])]
     private ?float $MontantPayee = null;
+
+    /**
+     * @var Collection<int, PaiementsDesFormateurs>
+     */
+    #[ORM\OneToMany(targetEntity: PaiementsDesFormateurs::class, mappedBy: 'IndemniteDeFormateur', orphanRemoval: true)]
+    private Collection $paiementsDesFormateurs;
+
+    public function __construct()
+    {
+        $this->paiementsDesFormateurs = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -123,6 +141,36 @@ class IndemnitesDeFormateures
     public function setMontantPayee(?float $MontantPayee): static
     {
         $this->MontantPayee = $MontantPayee;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PaiementsDesFormateurs>
+     */
+    public function getPaiementsDesFormateurs(): Collection
+    {
+        return $this->paiementsDesFormateurs;
+    }
+
+    public function addPaiementsDesFormateur(PaiementsDesFormateurs $paiementsDesFormateur): static
+    {
+        if (!$this->paiementsDesFormateurs->contains($paiementsDesFormateur)) {
+            $this->paiementsDesFormateurs->add($paiementsDesFormateur);
+            $paiementsDesFormateur->setIndemniteDeFormateur($this);
+        }
+
+        return $this;
+    }
+
+    public function removePaiementsDesFormateur(PaiementsDesFormateurs $paiementsDesFormateur): static
+    {
+        if ($this->paiementsDesFormateurs->removeElement($paiementsDesFormateur)) {
+            // set the owning side to null (unless already changed)
+            if ($paiementsDesFormateur->getIndemniteDeFormateur() === $this) {
+                $paiementsDesFormateur->setIndemniteDeFormateur(null);
+            }
+        }
 
         return $this;
     }

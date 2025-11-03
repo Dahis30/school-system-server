@@ -2,8 +2,9 @@
 
 namespace App\Entity;
 
-use App\Repository\PaiementsDesFormateursRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use App\Repository\PaiementsDesFormateursRepository;
 
 #[ORM\Entity(repositoryClass: PaiementsDesFormateursRepository::class)]
 class PaiementsDesFormateurs
@@ -11,25 +12,36 @@ class PaiementsDesFormateurs
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['paiements-indemnites-formateures' ])]
     private ?int $id = null;
 
     #[ORM\Column]
+    #[Groups(['paiements-indemnites-formateures' ])]
     private ?float $montant = null;
 
     #[ORM\Column(length: 80)]
+    #[Groups(['paiements-indemnites-formateures' ])]
     private ?string $modePaiement = null;
 
     #[ORM\Column]
+    #[Groups(['paiements-indemnites-formateures' ])]
     private ?\DateTimeImmutable $datePaiement = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['paiements-indemnites-formateures' ])]
     private ?string $commentaire = null;
 
     #[ORM\Column]
+    #[Groups(['paiements-indemnites-formateures' ])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['paiements-indemnites-formateures' ])]
     private ?\DateTimeImmutable $updatedAt = null;
+
+    #[ORM\ManyToOne(inversedBy: 'paiementsDesFormateurs')]
+    #[ORM\JoinColumn(nullable: false , onDelete: 'CASCADE')]
+    private ?IndemnitesDeFormateures $IndemniteDeFormateur = null;
 
     public function getId(): ?int
     {
@@ -60,9 +72,11 @@ class PaiementsDesFormateurs
         return $this;
     }
 
-    public function getDatePaiement(): ?\DateTimeImmutable
+
+    public function getDatePaiement($requiredDateTime = false): \DateTimeImmutable | string
     {
-        return $this->datePaiement;
+        if($requiredDateTime) return $this->datePaiement ;
+        return $this->datePaiement->format('Y-m-d');
     }
 
     public function setDatePaiement(\DateTimeImmutable $datePaiement): static
@@ -83,10 +97,11 @@ class PaiementsDesFormateurs
 
         return $this;
     }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
+    
+    public function getCreatedAt($requiredDateTime = false): \DateTimeImmutable | string
     {
-        return $this->createdAt;
+        if($requiredDateTime) return $this->createdAt ;
+        return $this->createdAt->format('Y-m-d');
     }
 
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
@@ -104,6 +119,18 @@ class PaiementsDesFormateurs
     public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getIndemniteDeFormateur(): ?IndemnitesDeFormateures
+    {
+        return $this->IndemniteDeFormateur;
+    }
+
+    public function setIndemniteDeFormateur(?IndemnitesDeFormateures $IndemniteDeFormateur): static
+    {
+        $this->IndemniteDeFormateur = $IndemniteDeFormateur;
 
         return $this;
     }
