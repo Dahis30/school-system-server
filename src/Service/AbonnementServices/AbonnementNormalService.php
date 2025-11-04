@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service ;
+namespace App\Service\AbonnementServices ;
 
 use Exception;
 use DateTimeImmutable;
@@ -12,9 +12,12 @@ use App\Repository\FormateursRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Service\DateServices\DateService;
 use App\Repository\CentresDeFormationRepository;
+use App\Service\IndemnitesDeFormateuresServices\CreateIndemnitesService;
+use App\Service\IndemnitesDeFormateuresServices\ObtenirIndemnitesService;
+use App\Service\IndemnitesDeFormateuresServices\SupprimerIdemnitesService;
 
 
-class AbonnementService{
+class AbonnementNormalService{
 
     public function __construct(
         AbonnementRepository $abonnementRepo ,
@@ -24,6 +27,9 @@ class AbonnementService{
         EtudiantRepository $etudiantRepo ,
         FormationRepository $formationRepo ,
         DateService $dateService ,
+        CreateIndemnitesService $createIndemnitesService,
+        ObtenirIndemnitesService $obtenirIndemnitesDeFormateuresService,
+        SupprimerIdemnitesService $supprimerIdemnitesDeFormateursService ,
         ){
         $this->abonnementRepo = $abonnementRepo ;
         $this->entityManager = $entityManager ;
@@ -32,25 +38,26 @@ class AbonnementService{
         $this->etudiantRepo = $etudiantRepo ;
         $this->formationRepo = $formationRepo ;
         $this->dateService = $dateService ;
-
+        $this->createIndemnitesService = $createIndemnitesService ;
+        $this->obtenirIndemnitesDeFormateuresService = $obtenirIndemnitesDeFormateuresService ;
+        $this->supprimerIdemnitesDeFormateursService = $supprimerIdemnitesDeFormateursService ;
     }
 
     public function getAbonnements($centreId){
         try{
             $centreDeFormation = $this->centresRepository->find((int) $centreId);
             if(!$centreDeFormation) return false ;
-            $abonemments = $this->abonnementRepo->findBy(['CentresDeFormation'=>$centreDeFormation]);
+            $abonemments = $this->abonnementRepo->findBy(['CentresDeFormation'=>$centreDeFormation , 'relatedToPack' =>false]);
             return $abonemments ;
         }catch(Exception $eroor){
             return false ;
-
         }
     }
 
 
 
     
-    public function createAbonnement ($centreId , $data ){
+    public function createAbonnementNormal ($centreId , $data ){
         try{
             $centreDeFormation = $this->centresRepository->find((int) ($centreId));
             if(!$centreDeFormation) return "centre n'existe pas" ;
@@ -99,7 +106,13 @@ class AbonnementService{
             $abonnementObject->setStatut( (string) $data['Statut']  ) ;
 
             $abonnementObject->setCreatedAt( new DateTimeImmutable ) ;
-            
+            $abonnementObject->setRelatedToPack( false ) ;
+
+            // Après la création de l'abonnement, il faut créer une indemnité pour le formateur
+            $isIndemniteeCreated = $this->createIndemnitesService->createIndemniteFromAbonnementNormal($abonnementObject) ;
+            // TODO : il faut cette  condition etre fonctionnelle
+            // if( $isIndemniteeCreated != true  ) return "une erreure est survenue l'ors la creation de l'indemnite" ;
+            ///////////////////////
             $this->entityManager->persist($abonnementObject);
             $this->entityManager->flush();
             return true ;
@@ -114,10 +127,27 @@ class AbonnementService{
 
 
                
-    public function updateAbonnement ( $data ){
+    public function updateAbonnementNormal ( $data ){
         try{
             $abonnementObject = $this->abonnementRepo->find((int) $data['id']);
             if(!$abonnementObject) return "abonnement n'existe pas" ;
+
+            // Cette fonction a été créée seulement pour modifier les abonnements normal , alors si l'abonnement est associé à un pack, on va retourner un message d'erreur .
+            if($abonnementObject->isRelatedToPack()) return "ce abonnement est d'un pack de formation" ;
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            
+            // Si l'abonnement est déjà payé, alors on ne peut pas le modifier.
+            if($abonnementObject->getMontantPayee()) return "L'abonnement est déjà payé, vous ne pouvez donc pas le modifier." ;
+            //////////////////////////////////////////////////////////////////
+            
+            // Avant de modifier un abonnement, il faut s'assurer que les indemnités des formateurs associées à cet abonnement ne sont pas encore payées
+            $indemnitesDeFormateures = $this->obtenirIndemnitesDeFormateuresService->obtenirIndemnitesParAbonnement($abonnementObject);
+            if( $indemnitesDeFormateures === false) return 'Une erreur est survenue.' ;
+            foreach ( $indemnitesDeFormateures as $indemnite){
+                if($indemnite->getMontantPayee()) return "Vous ne pouvez pas modifier cet abonnement car vous avez déjà payé un formateur en se basant sur cet abonnement" ;
+            }
+            ////////////////////////
+
 
             if(empty($data['Formateur'])) return "Formateur est obligatoire" ;
             if(empty($data['Etudiant'])) return "Etudiant est obligatoire" ;
@@ -181,6 +211,14 @@ class AbonnementService{
 
             $abonnementObject->setUpdatedAt(new DateTimeImmutable);
 
+            // Si tout se passe bien, on va supprimer toutes les indemnités de cet abonnement et les régénérer
+            $indemnitesDeleted = $this->supprimerIdemnitesDeFormateursService->SupprimerIdemnites($indemnitesDeFormateures);
+            /////////////////////////////////////////
+            // ici on vas regenerer une indemnité pour le formateur
+            $isIndemnitesCreated = $this->createIndemnitesService->createIndemniteFromAbonnementNormal($abonnementObject) ;
+            ///////////////////////////////////////////////////////
+           
+
             $this->entityManager->persist($abonnementObject);
             $this->entityManager->flush();
             return true ;
@@ -196,17 +234,29 @@ class AbonnementService{
     public function deleteAbonnement ($id){
         try{
             $abonnementObject = $this->abonnementRepo->find((int) $id ) ;
-            if(!$abonnementObject) return false ;
-            // Ici on va implémenter le voter des étudiants pour gérer les autorisations
-            // if(!$this->security->isGranted('ETUDIANT_DELETE', $abonnementObject) ) return false  ;
-           ////////////////////////////////////////////////////////////////////////
+            if(!$abonnementObject) return "L'abonnement n'existe plus" ;
+                        
+            // Si l'abonnement est déjà payé, alors on ne peut pas le supprimer.
+            if($abonnementObject->getMontantPayee()) return "L'abonnement est déjà payé, vous ne pouvez donc pas le supprimer." ;
+            //////////////////////////////////////////////////////////////////
+ 
+            // Avant de supprimer un abonnement, il faut s'assurer que les indemnités des formateurs associées à cet abonnement ne sont pas encore payées
+            $indemnitesDeFormateures = $this->obtenirIndemnitesDeFormateuresService->obtenirIndemnitesParAbonnement($abonnementObject);
+            if( $indemnitesDeFormateures === false) return 'Une erreur est survenue.' ;
+            foreach ( $indemnitesDeFormateures as $indemnite){
+                if($indemnite->getMontantPayee()) return "Vous ne pouvez pas supprimer cet abonnement car vous avez déjà payé un formateur en se basant sur cet abonnement" ;
+            }
+            // Si tout est OK, l'abonnement sera supprimé et les indemnités des formateurs seront supprimées automatiquement, 
+            // car dans l'entité "IndemnitesDeFormateurs" nous avons utilisé <<onDelete: 'CASCADE'>>
+            ////////////////////////
+
             $this->entityManager->remove($abonnementObject);
             $this->entityManager->flush();
+
             return true ;
         }catch(Exception $e){
-            return false ;
+            return "'Une erreur est survenue.'" ;
         }
-      
     }
 
 

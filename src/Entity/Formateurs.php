@@ -14,19 +14,19 @@ class Formateurs
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['formateurs' , 'abonnements'])]  
+    #[Groups(['formateurs' , 'abonnements' , 'contenusDePack' , 'contenu_abonnement' , 'indemnites-formateures'])]  
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['formateurs' , 'abonnements'])] 
+    #[Groups(['formateurs' , 'abonnements' , 'contenusDePack' , 'contenu_abonnement' , 'indemnites-formateures'])] 
     private ?string $nom = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['formateurs' , 'abonnements'])] 
+    #[Groups(['formateurs' , 'abonnements' , 'contenusDePack' , 'contenu_abonnement' , 'indemnites-formateures'])] 
     private ?string $prenom = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['formateurs' , 'abonnements'])] 
+    #[Groups(['formateurs' , 'abonnements' , 'contenusDePack'])] 
     private ?string $numeroTelephone = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -59,10 +59,16 @@ class Formateurs
      */
     #[ORM\OneToMany(targetEntity: FormateursFormation::class, mappedBy: 'Formateurs', orphanRemoval: true)]
     private Collection $formateursFormations;
+    /**
+     * @var Collection<int, IndemnitesDeFormateures>
+     */
+    #[ORM\OneToMany(targetEntity: IndemnitesDeFormateures::class, mappedBy: 'Formateur')]
+    private Collection $indemnitesDeFormateures;
 
     public function __construct()
     {
         $this->formateursFormations = new ArrayCollection();
+        $this->indemnitesDeFormateures = new ArrayCollection();
     }
 
 
@@ -206,6 +212,37 @@ class Formateurs
             // set the owning side to null (unless already changed)
             if ($formateursFormation->getFormateurs() === $this) {
                 $formateursFormation->setFormateurs(null);
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * @return Collection<int, IndemnitesDeFormateures>
+     */
+    public function getIndemnitesDeFormateures(): Collection
+    {
+        return $this->indemnitesDeFormateures;
+    }
+
+    public function addIndemnitesDeFormateure(IndemnitesDeFormateures $indemnitesDeFormateure): static
+    {
+        if (!$this->indemnitesDeFormateures->contains($indemnitesDeFormateure)) {
+            $this->indemnitesDeFormateures->add($indemnitesDeFormateure);
+            $indemnitesDeFormateure->setFormateur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeIndemnitesDeFormateure(IndemnitesDeFormateures $indemnitesDeFormateure): static
+    {
+        if ($this->indemnitesDeFormateures->removeElement($indemnitesDeFormateure)) {
+            // set the owning side to null (unless already changed)
+            if ($indemnitesDeFormateure->getFormateur() === $this) {
+                $indemnitesDeFormateure->setFormateur(null);
             }
         }
 
