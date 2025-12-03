@@ -46,3 +46,7 @@ PackDeFormations:
 IndemnitesDeFormateures:
   resource: App\Controller\IndemnitesDeFormateuresController
   prefix: /api
+  
+RevenusDuCentre:
+  resource: App\Controller\RevenusDuCentreController
+  prefix: /api
