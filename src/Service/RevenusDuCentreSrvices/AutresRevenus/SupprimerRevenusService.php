@@ -1,32 +1,25 @@
 <?php
 
-namespace App\Service\RevenusDuCentreSrvices ;
+namespace App\Service\RevenusDuCentreSrvices\AutresRevenus ;
 
 use Exception;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\RevenusDuCentreRepository;
 
-class ModifierRevenusService {
+class SupprimerRevenusService {
     public function __construct(EntityManagerInterface $entityManager , RevenusDuCentreRepository $revenusDuCentreRepo ) {
         $this->entityManager = $entityManager ; 
         $this->revenusDuCentreRepo = $revenusDuCentreRepo ; 
     }
-    
-    public function modifierRevenu($data){
+
+    public function supprimerRevenu($revenuId){
 
         try{
-            $revenuObject = $this->revenusDuCentreRepo->find($data['id']) ;
+            $revenuObject = $this->revenusDuCentreRepo->find($revenuId) ;
             if(!$revenuObject) return "Le revenu que vous avez sélectionnée n'existe pas." ;
 
-            $revenuObject->setMontant((float)$data['montant']) ;
-            $date = new DateTimeImmutable($data['date']);
-            $revenuObject->setDate($date) ;
-            $revenuObject->setDescription($data['description']) ;
-            $revenuObject->setCommentaire($data['commentaire']) ;
-            $revenuObject->setUpdatedAt( new DateTimeImmutable ) ;
-
-            $this->entityManager->persist($revenuObject);
+            $this->entityManager->remove($revenuObject);
             $this->entityManager->flush();
 
             return true ;
@@ -35,6 +28,9 @@ class ModifierRevenusService {
             return "Une erreur est survenue." ;
         }
     }
+
+
+    
 
 
 

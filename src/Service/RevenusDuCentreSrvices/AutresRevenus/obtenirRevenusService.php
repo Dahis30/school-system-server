@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\RevenusDuCentreSrvices ;
+namespace App\Service\RevenusDuCentreSrvices\AutresRevenus ;
 
 use Exception;
 use App\Repository\RevenusDuCentreRepository;
